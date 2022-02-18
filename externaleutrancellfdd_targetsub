@@ -1,0 +1,60 @@
+#*************************************#
+#                                     #
+#  externaleutrancellfdd_targetsub    #
+#                                     #
+#*************************************#
+
+#This script is a sub of externaleutrancellfdd_main.mos and cannot be used on it's own!
+
+#*************************************#
+#       program starts here           #
+#*************************************#
+
+unset all
+$return = 0
+lt all
+
+#*************************************#
+#     initial variables start         #
+#*************************************#
+
+#Find main path and externaleutrancellfdd_functions
+!find ~/ -name pathtoexternaleutrancellfdd >> 			path
+$linecontent = 											readfile(path)
+$path = 												$linecontent[1]
+$linecontent = 											readfile($path)
+$externaleutrancellfdd_functions =						$linecontent[5]
+$path = $path -s /pathtoexternaleutrancellfdd
+!rm -f path
+
+#*************************************#
+#     initial variables end           #
+#*************************************#
+
+l+ $path/log/targetsub.log
+
+#*************************************#
+#       main sequence starts          #
+#*************************************#
+
+run $externaleutrancellfdd_functions
+getsequence
+contactind_target
+checkifenb_target
+if $return = 1
+	return
+else
+	getdata
+	writedata target
+fi
+
+
+#*************************************#
+#       main sequence ends            #
+#*************************************#
+
+l-
+
+#*************************************#
+#           program ends              #
+#*************************************#

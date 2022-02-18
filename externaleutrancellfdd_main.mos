@@ -1,0 +1,150 @@
+#*************************************#
+#                                     #
+#   externaleutrancellfdd_main.mos    #
+#                                     #
+#*************************************#
+
+unset all
+
+#*************************************#
+#        initial variables            #
+#*************************************#
+
+$standard_time = `date +%Y-%m-%d"_"%H%M`
+$folder = ~/CR_EXTERNALEUTRANCELLFDD
+
+#*************************************#
+#     initial variables end           #
+#*************************************#
+
+#Create directories
+$path = $folder/$standard_time   
+!mkdir $folder               
+!mkdir $folder/$standard_time
+!mkdir $path/tmp             
+!mkdir $path/log             
+
+l+mm $path/log/main.log
+
+#Find and remove old pathtoexternaleutrancellfdd if exists
+!find ~/ -name pathtoexternaleutrancellfdd > oldpath
+$linecontent = readfile(oldpath)
+for $z = 1 to $nr_of_lines
+	$oldpath = $linecontent[$z]
+	!rm -f $oldpath
+done
+!rm -f oldpath
+
+#Write newpath to a file, find subs and write their path to the same file
+!echo '$path' >> 											$path/pathtoexternaleutrancellfdd
+!find ~/ -name externaleutrancellfdd_targetsub >> 			$path/pathtoexternaleutrancellfdd
+!find ~/ -name externaleutrancellfdd_sourcesub >> 			$path/pathtoexternaleutrancellfdd
+!find ~/ -name externaleutrancellfdd_targetresultsub >> 	$path/pathtoexternaleutrancellfdd
+!find ~/ -name externaleutrancellfdd_functions >> 			$path/pathtoexternaleutrancellfdd
+
+#Read newpath
+$linecontent = readfile($path/pathtoexternaleutrancellfdd)
+$externaleutrancellfdd_targetsub = $linecontent[2]
+$externaleutrancellfdd_sourcesub = $linecontent[3]
+$externaleutrancellfdd_targetresultsub = $linecontent[4]
+$externaleutrancellfdd_functions = $linecontent[5]
+
+#Create printout texts
+!echo '************************************************************' >> $path/tmp/input_method.txt
+!echo '** Do you have a file with the list of TermPointToENBs? ****' >> $path/tmp/input_method.txt
+!echo '** Please confirm! yes (y) or no (n)! **********************' >> $path/tmp/input_method.txt
+!echo '************************************************************' >> $path/tmp/input_method.txt
+
+!echo '*************************************************' >> $path/tmp/x2listinp_file.txt
+!echo '** Your file with the list of TermPointToENBs:***' >> $path/tmp/x2listinp_file.txt
+!echo '** (Please specify! (path/filename:) ************' >> $path/tmp/x2listinp_file.txt
+!echo '** The expected format is: **********************' >> $path/tmp/x2listinp_file.txt
+!echo '** source-target (uppercase)*********************' >> $path/tmp/x2listinp_file.txt
+!echo '** e.g. *****************************************' >> $path/tmp/x2listinp_file.txt
+!echo '** 69012BB2-69012BB3 ****************************' >> $path/tmp/x2listinp_file.txt
+!echo '** 69012BB2-69021BB4 ****************************' >> $path/tmp/x2listinp_file.txt
+!echo '** 69021BB2-69021BB3 ****************************' >> $path/tmp/x2listinp_file.txt
+!echo '*************************************************' >> $path/tmp/x2listinp_file.txt
+
+!echo '*************************************************' >> $path/tmp/x2filelistnotfound.txt
+!echo '** File not found! ******************************' >> $path/tmp/x2filelistnotfound.txt
+!echo '** Please specify the correct path/filename! ****' >> $path/tmp/x2filelistnotfound.txt
+!echo '*************************************************' >> $path/tmp/x2filelistnotfound.txt
+
+!echo '*************************************************' >> $path/tmp/fileformaterror.txt
+!echo '** Incorrect file format ************************' >> $path/tmp/fileformaterror.txt
+!echo '** The expected format is: **********************' >> $path/tmp/fileformaterror.txt
+!echo '** source-target (uppercase)*********************' >> $path/tmp/fileformaterror.txt
+!echo '** e.g. *****************************************' >> $path/tmp/fileformaterror.txt
+!echo '** 69012BB2-69012BB3 ****************************' >> $path/tmp/fileformaterror.txt
+!echo '** 69012BB2-69021BB4 ****************************' >> $path/tmp/fileformaterror.txt
+!echo '** 69021BB2-69021BB3 ****************************' >> $path/tmp/fileformaterror.txt
+!echo '*************************************************' >> $path/tmp/fileformaterror.txt
+
+!echo '*************************************************' >> $path/tmp/x2listinp_manual.txt
+!echo '** Please give in the list of TermPointToenbs!***' >> $path/tmp/x2listinp_manual.txt
+!echo '** and hit (f) when finished! *******************' >> $path/tmp/x2listinp_manual.txt
+!echo '** The expected format is: **********************' >> $path/tmp/x2listinp_manual.txt
+!echo '** source-target (uppercase)*********************' >> $path/tmp/x2listinp_manual.txt
+!echo '** e.g. *****************************************' >> $path/tmp/x2listinp_manual.txt
+!echo '** 69012BB2-69012BB3 (ENTER) ********************' >> $path/tmp/x2listinp_manual.txt
+!echo '** 69012BB2-69021BB4 (ENTER) ********************' >> $path/tmp/x2listinp_manual.txt
+!echo '** 69021BB2-69021BB3 (ENTER) ********************' >> $path/tmp/x2listinp_manual.txt
+!echo '** (f) (ENTER) **********************************' >> $path/tmp/x2listinp_manual.txt
+!echo '*************************************************' >> $path/tmp/x2listinp_manual.txt
+
+!echo '*************************************************' >> $path/tmp/x2listconfirm.txt
+!echo '** The list of TermPointToENBs to be defined:****' >> $path/tmp/x2listconfirm.txt
+!echo '** Please confirm (y) or reject (n)! ************' >> $path/tmp/x2listconfirm.txt
+!echo '*************************************************' >> $path/tmp/x2listconfirm.txt
+
+!echo '*****************************************************************' >> $path/tmp/success.txt
+!echo '** SUCCESS: The following TermPointToenbs have been added: ******' >> $path/tmp/success.txt
+!echo '*****************************************************************' >> $path/tmp/success.txt
+
+!echo '**************************************************************' >> $path/tmp/finish.txt
+!echo '** FINISHED: The result is the following: ********************' >> $path/tmp/finish.txt
+!echo '** Please check your logs in:$path/tmp/log/$standard_time.log ' >> $path/tmp/finish.txt
+!echo '**************************************************************' >> $path/tmp/finish.txt
+
+!echo '*******************************************************************' >> $path/tmp/badformat.txt
+!echo '** B A D   F O R M A T ********************************************' >> $path/tmp/badformat.txt
+!echo '** The expected format is: ****************************************' >> $path/tmp/badformat.txt
+!echo '** SOURCE-TARGET (uppercase)***************************************' >> $path/tmp/badformat.txt
+!echo '** e.g: ***********************************************************' >> $path/tmp/badformat.txt
+!echo '** 69012BB2-69012BB3 **********************************************' >> $path/tmp/badformat.txt
+!echo '*******************************************************************' >> $path/tmp/badformat.txt
+
+!echo 'EXTERNALEUTRANCELLFDDs ALREADY DEFINED:' >> $path/tmp/externaleutrancellfddalreadydefined.txt
+!echo 'EXTERNALEUTRANCELLFDDs WHICH HAVE JUST BEEN ADDED:' >> $path/tmp/externaleutrancellfddresult.txt
+
+#*************************************#
+#       main sequence starts          #
+#*************************************#
+
+run $externaleutrancellfdd_functions
+input
+for $sequence = 1 to $n
+	unset $sourcecontactok
+	unset $ratfoundsource
+	unset $sourcecontactok
+	unset $ratfoundsource
+	writesequence
+	targetsub
+	if $targetcontactok = 1 && $ratfoundtarget = 1
+		sourcesub
+		fetchresult
+	fi
+		writeresult
+done
+displayresult
+return
+l-
+
+#*************************************#
+#       main sequence ends            #
+#*************************************#
+
+#*************************************#
+#           program ends              #
+#*************************************#
