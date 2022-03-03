@@ -5,7 +5,7 @@
 #                                     #
 #*************************************#
 
-Externaleutrancellfdd.mos adds all missing cells of all wanted neighbor nodes -as externaleutrancells and adds X2-interfaces too.
+Externaleutrancellfdd_main.mos adds all missing cells of all wanted neighbor nodes -as externaleutrancells and adds X2-interfaces too.
 The script checks the existence of all relevant MOs and adds them on both sides if missing.
 The only input needed is the list of the wanted X2-relation(s), like:
 
