@@ -1,12 +1,12 @@
 #*************************************#
 #                                     #
-#    externaleutrancellfdd.mos        #
+#       externaleutrancellfdd         #
 #              readme                 #
 #                                     #
 #*************************************#
 
 Externaleutrancellfdd.mos adds all missing cells of all wanted neighbor nodes -as externaleutrancells and adds X2-interfaces too.
-The script checks the existence of all relevant MOs and adds them on both sides if missed.
+The script checks the existence of all relevant MOs and adds them on both sides if missing.
 The only input needed is the list of the wanted X2-relation(s), like:
 
 69012BB2-69014BB2
@@ -20,6 +20,9 @@ Ensure that ~/moshell/sitefiles/ipdatabase is up to date and includes the addres
 Also, always ensure that variables are set correctly in your ~/.moshellrc so that login to nodes can work -based on nodenames only.
 
 Usage:
+Upload externaleutrancellfdd_main.mos together with all the subs to anywhere under your ~/ on ENM!
+Run externaleutrancellfdd_main.mos from moshell!
+Doesn't matter whether you are logged in to a node or you just ran moshell in offline mode.
 After running the script (run externaleutrancellfdd_main.mos) it asks whether you have a file with the list of X2s.
 
 	a) If the answer is yes, then the expected format is displayed.
@@ -41,3 +44,4 @@ externaleutrancellfdd_readme.txt
 
 This script doesn't add eventual missing eutran frequencies, frequency relations and cell relations.
 Separate scripts are available for that purpose (See: https://github.com/codgersanya/Relations).
+Note that only one set of this scripts can be stored under your home -otherwise the program won't be able to find the subs and will be malfunctioning!
