@@ -22,7 +22,7 @@ Also, always ensure that variables are set correctly in your ~/.moshellrc so tha
 Usage:
 Upload externaleutrancellfdd_main.mos together with all the subs to anywhere under your ~/ on ENM!
 Run externaleutrancellfdd_main.mos from moshell!
-Doesn't matter whether you are logged in to a node or you just ran moshell in offline mode.
+Doesn't matter whether you are logged in to a node or you just run moshell in offline mode.
 After running the script (run externaleutrancellfdd_main.mos) it asks whether you have a file with the list of X2s.
 
 	a) If the answer is yes, then the expected format is displayed.
