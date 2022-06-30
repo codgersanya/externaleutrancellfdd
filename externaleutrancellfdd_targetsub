@@ -44,7 +44,7 @@ checkifenb_target
 if $return = 1
 	return
 else
-	getdata
+	getdata source
 	writedata target
 fi
 

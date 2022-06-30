@@ -4,6 +4,16 @@
 #                                                            #
 #************************************************************#
 
+#*************************************#
+#       variables declaration         #
+#*************************************#
+
+$eutranwldn = ENodeBFunction=1,EUtraNetwork=1
+
+#*************************************#
+#       functions declaration         #
+#*************************************#
+
 func fetchxtwolistfile
 	$linecontent = readfile($xtwolistfile)
 	for $n = 1 to $nr_of_lines
@@ -192,10 +202,10 @@ endfunc
 
 func getdata
 	get ^eNodeBFunction= enbid$ > $enbid
-	get ^eNodeBFunction= plmnid > $plmnid
-	get ^eNodeBFunction= sctpX2Ref > $sctpendpointRef
+	get ^eNodeBFunction= plmnid$ > $plmnid
+	get ^eNodeBFunction= ^sctpX2Ref$ > $sctpendpointRef
 	if $sctpendpointRef ~ 0
-		get ^eNodeBFunction= sctpRef > $sctpendpointRef
+		get ^eNodeBFunction= ^sctpRef$ > $sctpendpointRef
 	fi
 	
 	ma xtwolocalipaddress $sctpendpointRef localIpAddress
@@ -211,11 +221,11 @@ func getdata
 	for $mo in eutrancellfdd
 		$i = $i + 1
 		$eutrancellfddrdn = rdn($mo)
-		get $eutrancellfddrdn cellId > $cellId[$i]
-		get $eutrancellfddrdn physicalLayerCellIdGroup > $physicalLayerCellIdGroup[$i]
-		get $eutrancellfddrdn physicalLayerSubCellId > $physicalLayerSubCellId[$i]
-		get $eutrancellfddrdn ^tac > $tac[$i]
-		get $eutrancellfddrdn earfcndl > $earfcndl[$i]
+		get $eutrancellfddrdn ^cellId$ > $cellId[$i]
+		get $eutrancellfddrdn ^physicalLayerCellIdGroup$ > $physicalLayerCellIdGroup[$i]
+		get $eutrancellfddrdn ^physicalLayerSubCellId$ > $physicalLayerSubCellId[$i]
+		get $eutrancellfddrdn ^tac$ > $tac[$i]
+		get $eutrancellfddrdn ^earfcndl$ > $earfcndl[$i]
 	done
 endfunc
 
@@ -285,13 +295,6 @@ func fetchdata
 	done
 endfunc
 
-func mocheck
-	ma eutranw ^EUtraNetwork=
-	for $mo in eutranw
-		$eutranwldn = ldn($mo)
-	done
-endfunc
-
 func extenbfcheck
 	ma extenbf ExternalENodeBFunction enbid ^$extenbid$ 
 	if $nr_of_mos = 0
@@ -301,6 +304,7 @@ func extenbfcheck
 			$extenbfldn = ldn($mo)
 		done
 	fi
+	pv $extenbfldn
 endfunc	
 
 func extenbfcr
@@ -363,25 +367,40 @@ func xtwocheck
 	fi
 endfunc
 
+func eutranfreqcr
+	$eutranFrequencyRef = $eutranwldn,EUtranFrequency=$earfcndl[$i]
+	crn $eutranFrequencyRef
+		arfcnValueEUtranDl $earfcndl[$i]
+	end
+endfunc
+
 func eutranfrequencyref
 	mr EUtranFrequency
-	ma EUtranFrequency EUtranFrequency arfcnValueEUtranDl $earfcndl[$i]
-	for $mo in EUtranFrequency
-		$eutranFrequencyRef = ldn($mo)
-	done
+	ma EUtranFrequency $eutranwldn,EUtranFrequency arfcnValueEUtranDl $earfcndl[$i]
+	if $nr_of_mos = 0
+		eutranfreqcr
+	else
+		for $mo in EUtranFrequency
+			$eutranFrequencyRef = ldn($mo)
+		done
+	fi
+	pv $eutranFrequencyRef
 endfunc
 
 func externaleutrancellfddcheck
+	$destination = $1
 	for $i = 1 to $noofexternalcells
+		pv $destination
 		$externaleutrancellfdd[$i] = $extenbfldn,ExternalEUtranCellFDD=$extplmnid[mcc]$extplmnid[mnc]-$extenbid-$cellId[$i]
-		$externaleutrancellfdd[$i] = $externaleutrancellfdd[$i] -s .*,
+		$externaleutrancellfddrdn[$i] = $externaleutrancellfdd[$i] -s .*,
 		pr $externaleutrancellfdd[$i]$
 		if $nr_of_mos = 1 && $1 = source
-			!echo '$source[$sequence]: $externaleutrancellfdd[$i]' >> $path/tmp/externaleutrancellfddalreadydefined.txt
+			!echo '$source[$sequence]: $externaleutrancellfddrdn[$i]' >> $path/tmp/externaleutrancellfddalreadydefined.txt
 		else if $nr_of_mos = 1 && $1 = target
-			!echo '$target[$sequence]: $externaleutrancellfdd[$i]' >> $path/tmp/externaleutrancellfddalreadydefined.txt
+			!echo '$target[$sequence]: $externaleutrancellfddrdn[$i]' >> $path/tmp/externaleutrancellfddalreadydefined.txt
 		else
 			eutranfrequencyref
+			pv $externaleutrancellfdd[$i]
 			crn $externaleutrancellfdd[$i]
 				localCellId $cellId[$i]
 				physicalLayerCellIdGroup $physicalLayerCellIdGroup[$i]
@@ -389,12 +408,12 @@ func externaleutrancellfddcheck
 				tac $tac[$i]
 				eutranFrequencyRef $eutranFrequencyRef
 			end
-			addcelltoresult
+			addcelltoresult $destination
 		fi
 	done
 endfunc
 
-func addcelltoresult
+func addcelltoresult $destination
 	$externaleutrancellfdd[$i] = $externaleutrancellfdd[$i] -s .*,
 	pr $externaleutrancellfdd[$i]$
 		if $nr_of_mos = 1 && $1 = source
